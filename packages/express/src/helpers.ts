@@ -99,8 +99,8 @@ export const MountCollection = (app: CanUse, collection: RouteCollection) => {
 		const handler = IsRouter(loc)
 			? (loc as Router)
 			: loc instanceof BaseExpressApp
-			? loc.app
-			: new ServerError(`Handler defined at route ${route} is not an express router or ExpressApp`);
+				? loc.app
+				: new ServerError(`Handler defined at route ${route} is not an express router or ExpressApp`);
 		if (handler instanceof Error) {
 			throw handler;
 		}

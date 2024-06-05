@@ -6,16 +6,17 @@ import {
 	matchedData,
 	ValidationChain,
 	oneOf,
-	OneOfCustomMessageBuilder,
 	Result,
 	ValidationError as ExpressValidationError,
+	CustomValidator,
+	OneOfOptions,
 } from "express-validator";
 import { GetClassMetadata, SetClassMetadata } from "./metadata";
-import { ClassType } from "../interfaces";
+import { ClassType, NextMiddlewareSignature } from "../interfaces";
 import { Use } from "./middleware";
 import { Request, Response, NextFunction } from "express";
 import { ValidationError } from "@weaverkit/errors";
-import { CustomValidator, Middleware } from "express-validator/src/base";
+// import { Middleware } from "express-validator/src/base";
 import { ExpressValidatorOptions } from "../helpers";
 
 export interface ValidateIf {
@@ -106,13 +107,13 @@ export const NestedConstraint = <T>(
 
 interface OneofMetadata {
 	chains: (ValidationChain | ValidationChain[])[];
-	message?: string | OneOfCustomMessageBuilder;
+	messageOrOptions?: string | OneOfOptions;
 }
 
-export const OneOf = (chains: (ValidationChain | ValidationChain[])[], message?: string | OneOfCustomMessageBuilder) => {
+export const OneOf = (chains: (ValidationChain | ValidationChain[])[], messageOrOptions?: string | OneOfOptions) => {
 	return (target: ClassType<any>) => {
 		const oneofs = GetClassMetadata<OneofMetadata[]>(ONEOF_SCHEMA_SYMBOL, target.prototype, []);
-		oneofs.push({ chains, message });
+		oneofs.push({ chains, messageOrOptions });
 		SetClassMetadata(ONEOF_SCHEMA_SYMBOL, target.prototype, oneofs);
 		return target;
 	};
@@ -154,7 +155,7 @@ export const ConstraintToValidator = (field: string, { $if, ...constraint }: Fie
 	if (!(($if as ValidationChain).run && typeof ($if as ValidationChain).run === "function") && typeof $if !== "function") {
 		throw new Error(`$if predicate passed for ${field} is not a function`);
 	}
-	const middleware: Middleware = async (req, _res, next) => {
+	const middleware: NextMiddlewareSignature = async (req, _res, next) => {
 		try {
 			let passed = false;
 			if (($if as ValidationChain).run && typeof ($if as ValidationChain).run === "function") {
@@ -184,7 +185,7 @@ export const ConstraintToValidator = (field: string, { $if, ...constraint }: Fie
 };
 
 export const GetSchemaValidators = (objects: ClassType<any>[]) => {
-	const validators: (ValidationChain | Middleware)[] = [];
+	const validators: (ValidationChain | NextMiddlewareSignature)[] = [];
 	const locations = new Set<Location>();
 	for (const obj of objects) {
 		const location = GetClassMetadata<Location>(SCHEMA_LOCATION_SYMBOL, obj.prototype);
@@ -193,8 +194,10 @@ export const GetSchemaValidators = (objects: ClassType<any>[]) => {
 		}
 		locations.add(location);
 		const oneofs = GetClassMetadata<OneofMetadata[]>(ONEOF_SCHEMA_SYMBOL, obj.prototype, []);
-		for (const { chains, message } of oneofs) {
-			validators.push(oneOf(chains, message));
+		for (const { chains, messageOrOptions } of oneofs) {
+			const options: OneOfOptions | undefined =
+				typeof messageOrOptions === "string" ? { message: messageOrOptions } : messageOrOptions;
+			validators.push(oneOf(chains, options));
 		}
 		const schema = GetSchema(obj.prototype);
 		for (const [field, constraints] of Object.entries(schema)) {
@@ -220,7 +223,7 @@ export function UseValidator(
 	input: RequireAtLeastOne<UseValidatorConfig, "chains" | "objects"> | ClassType<any>[],
 	options?: ExpressValidatorOptions,
 ) {
-	let chains: (ValidationChain | Middleware)[] = [];
+	let chains: (ValidationChain | NextMiddlewareSignature)[] = [];
 	let objects: ClassType<any>[] = [];
 	const locations = new Set<Location>();
 	if (Array.isArray(input)) {
@@ -244,7 +247,7 @@ export function UseValidator(
 	};
 }
 
-export const RunImperative = async (validator: ValidationChain | Middleware, req: Request, res?: Response) => {
+export const RunImperative = async (validator: ValidationChain | NextMiddlewareSignature, req: Request, res?: Response) => {
 	try {
 		if ((validator as ValidationChain).run && typeof (validator as ValidationChain).run === "function") {
 			await (validator as ValidationChain).run(req);

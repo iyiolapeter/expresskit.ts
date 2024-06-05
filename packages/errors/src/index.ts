@@ -223,7 +223,10 @@ export class NotImplementedError extends AppError {
 
 export class HttpError extends AppError {
 	public code = "HTTP_ERROR";
-	constructor(public httpCode: number, message?: string) {
+	constructor(
+		public httpCode: number,
+		message?: string,
+	) {
 		super(message);
 	}
 }

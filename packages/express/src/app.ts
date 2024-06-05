@@ -7,7 +7,10 @@ import helmet from "helmet";
 import cors from "cors";
 
 export class BaseExpressApp extends EventEmitter {
-	constructor(protected _app: express.Application, protected _init = true) {
+	constructor(
+		protected _app: express.Application,
+		protected _init = true,
+	) {
 		super();
 	}
 

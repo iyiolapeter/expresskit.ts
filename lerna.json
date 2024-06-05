@@ -6,6 +6,13 @@
     "publish": {
       "graphType": "all",
       "forcePublish": true
+    },
+    "bootstrap": {
+        "hoist": [
+            "reflect-metadata",
+            "@types/node"
+        ],
+        "ignoreScripts": true
     }
   },
   "version": "0.1.2"

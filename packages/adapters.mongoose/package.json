@@ -14,7 +14,7 @@
         "lib"
     ],
     "engines": {
-        "node": ">=12"
+        "node": ">=16"
     },
     "scripts": {
         "build": "tsc",
@@ -23,14 +23,14 @@
     "publishConfig": {
         "access": "public"
     },
-    "gitHead": "302e89539960cb904d0f1e5a136859a453c5a435",
+    "gitHead": "bc216095de1343c44f207d43d90863f05138946c",
     "dependencies": {
         "@weaverkit/adapters.base": "^0.1.2"
     },
     "devDependencies": {
-        "typescript": "4.7.2"
+        "typescript": "4.9.5"
     },
     "peerDependencies": {
-        "mongoose": "^6.5.3"
+        "mongoose": "^8.0.0"
     }
 }

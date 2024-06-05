@@ -11,7 +11,10 @@ export interface ValidationNode extends Validator {}
 export class ValidationNode {
 	public negateNext!: boolean;
 	protected rule: Record<string, any>;
-	constructor(public id: string, public parent?: ValidationNode) {
+	constructor(
+		public id: string,
+		public parent?: ValidationNode,
+	) {
 		this.rule = {
 			id,
 			required: false,
