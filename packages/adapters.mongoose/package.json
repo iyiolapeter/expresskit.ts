@@ -1,6 +1,6 @@
 {
     "name": "@weaverkit/adapters.mongoose",
-    "version": "0.2.0-alpha.0",
+    "version": "0.2.0-aplha.1",
     "description": "> TODO: description",
     "author": "Peter Smart <iyiolapeter@gmail.com>",
     "homepage": "",
@@ -25,7 +25,7 @@
     },
     "gitHead": "465069659917ef6819edec6c4eb33370280f9d6f",
     "dependencies": {
-        "@weaverkit/adapters.base": "^0.2.0-alpha.0"
+        "@weaverkit/adapters.base": "^0.2.0-aplha.1"
     },
     "devDependencies": {
         "typescript": "4.9.5"
