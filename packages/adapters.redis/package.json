@@ -23,7 +23,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "gitHead": "bc216095de1343c44f207d43d90863f05138946c",
+    "gitHead": "465069659917ef6819edec6c4eb33370280f9d6f",
     "dependencies": {
         "@weaverkit/adapters.base": "^0.2.0-alpha.0"
     },
