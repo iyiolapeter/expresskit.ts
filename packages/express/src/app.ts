@@ -56,6 +56,7 @@ export enum WeaverExpressAppEvents {
 }
 
 export class WeaverExpressApp extends BaseExpressApp {
+	#errorBound = false;
 	constructor(private config: WeaverExpressAppConfig) {
 		super(express(), false);
 	}
@@ -92,21 +93,31 @@ export class WeaverExpressApp extends BaseExpressApp {
 		this.emit(WeaverExpressAppEvents.PREINIT, this._app);
 	}
 
-	public init() {
+	public init({ applyErrorMiddlewares = true }: { applyErrorMiddlewares?: boolean } = {}) {
 		if (!this._init) {
 			this.preinit();
 			super.init();
 			this.bindRoutes();
 			this.emit(WeaverExpressAppEvents.INIT, this._app);
-			const { use404Middleware = true, useErrorMiddleware = true } = this.config;
-			if (use404Middleware) {
-				this.applyPageNotFoundMiddleware();
-			}
-			if (useErrorMiddleware) {
-				this.applyErrorHandlerMiddleware();
+			if (applyErrorMiddlewares) {
+				this.applyErrorMiddlewares();
 			}
 		}
 		return this;
+	}
+
+	public applyErrorMiddlewares() {
+		if (this.#errorBound) {
+			return;
+		}
+		const { use404Middleware = true, useErrorMiddleware = true } = this.config;
+		if (use404Middleware) {
+			this.applyPageNotFoundMiddleware();
+		}
+		if (useErrorMiddleware) {
+			this.applyErrorHandlerMiddleware();
+		}
+		this.#errorBound = true;
 	}
 
 	protected applyPageNotFoundMiddleware() {
